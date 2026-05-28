@@ -22,7 +22,7 @@ Automatically detects the running AI tool and OS environment, then displays a to
 | Environment | Requirement |
 |-------------|-------------|
 | Windows / WSL | [BurntToast](https://github.com/Windos/BurntToast) — auto-installed on first run |
-| Linux | `notify-send` — `sudo apt install libnotify-bin` |
+| Linux | `notify-send` — install via your package manager |
 | macOS | None |
 
 ## Installation

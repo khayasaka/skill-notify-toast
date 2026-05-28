@@ -22,7 +22,7 @@ Claude Code・GitHub Copilot CLI・Cursor で使えるクロスプラットフ�
 | 環境 | 必要なもの |
 |------|-----------|
 | Windows / WSL | [BurntToast](https://github.com/Windos/BurntToast) — 初回実行時に自動インストール |
-| Linux | `notify-send` — `sudo apt install libnotify-bin` |
+| Linux | `notify-send` — パッケージマネージャーでインストール |
 | macOS | 不要 |
 
 ## インストール
