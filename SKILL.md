@@ -22,5 +22,6 @@ Automatically detects the running AI tool and OS environment.
 Run the following command with an appropriate title and message:
 
 ```bash
-bash "$HOME/.claude/skills/notify/scripts/run.sh" "$TITLE" "$MESSAGE"
+NOTIFY=$(echo "$HOME/.claude/skills/notify/scripts/run.sh" | sed 's|^/\([a-zA-Z]\)/|\1:/|')
+bash "$NOTIFY" "$TITLE" "$MESSAGE"
 ```
