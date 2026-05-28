@@ -77,3 +77,7 @@ The skill detects the environment in two steps:
 | `uname -s` = `Darwin` | macOS |
 | `uname -s` starts with `MINGW` / `MSYS`, or `OS=Windows_NT` | Windows (Git Bash) |
 | Otherwise | Linux |
+
+## License
+
+[MIT](LICENSE) © khayasaka@gmail.com

@@ -77,3 +77,7 @@ git clone https://github.com/khayasaka/skill-notify-toast.git ~/.claude/skills/n
 | `uname -s` が `Darwin` | macOS |
 | `uname -s` が `MINGW` / `MSYS` で始まる、または `OS=Windows_NT` | Windows (Git Bash) |
 | それ以外 | Linux |
+
+## ライセンス
+
+[MIT](LICENSE) © khayasaka@gmail.com
