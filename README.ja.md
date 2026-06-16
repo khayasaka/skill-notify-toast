@@ -22,8 +22,22 @@ Claude Code・GitHub Copilot CLI・Cursor で使えるクロスプラットフ�
 | 環境 | 必要なもの |
 |------|-----------|
 | Windows / WSL | [BurntToast](https://github.com/Windos/BurntToast) — 初回実行時に自動インストール |
+| Windows / WSL（任意） | [node-notifier](https://www.npmjs.com/package/node-notifier) — snoretoast による高速通知が有効になる |
 | Linux | `notify-send` — パッケージマネージャーでインストール |
 | macOS | 不要 |
+
+### node-notifier による高速通知（Windows / WSL）
+
+[node-notifier](https://www.npmjs.com/package/node-notifier) をグローバルインストールすると、[snoretoast](https://github.com/KDE/snoretoast) 経由での通知が有効になります。
+snoretoast はノンブロッキングなネイティブ実行ファイルのため、BurntToast より大幅に高速です。
+
+```bash
+npm install -g node-notifier
+```
+
+- snoretoast のパスは初回実行後に `.snoretoast_cache` にキャッシュされ、npm の起動コストを排除します。
+- node-notifier が未インストールの場合は BurntToast に自動フォールバックします。
+- **WSL の場合**: WSL 側の node-notifier は使用しません。WSL 側の EXE は `\\wsl.localhost\...` という UNC パスになり、Windows のセキュリティポリシーでブロックされる可能性があるためです。代わりに `cmd.exe` 経由で **Windows 側の npm** を参照します。Windows 側に node-notifier がインストールされていれば WSL でも高速通知が有効になります。
 
 ## インストール
 

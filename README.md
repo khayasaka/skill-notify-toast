@@ -22,8 +22,21 @@ Automatically detects the running AI tool and OS environment, then displays a to
 | Environment | Requirement |
 |-------------|-------------|
 | Windows / WSL | [BurntToast](https://github.com/Windos/BurntToast) — auto-installed on first run |
+| Windows / WSL (optional) | [node-notifier](https://www.npmjs.com/package/node-notifier) — enables faster notifications via snoretoast |
 | Linux | `notify-send` — install via your package manager |
 | macOS | None |
+
+### Faster notifications with node-notifier (Windows / WSL)
+
+Installing [node-notifier](https://www.npmjs.com/package/node-notifier) globally enables notifications via [snoretoast](https://github.com/KDE/snoretoast), which is significantly faster than BurntToast because it uses a non-blocking native executable.
+
+```bash
+npm install -g node-notifier
+```
+
+- The snoretoast path is cached in `.snoretoast_cache` after the first run to avoid npm startup overhead.
+- If node-notifier is not installed, the skill falls back to BurntToast automatically.
+- **WSL**: snoretoast is looked up from the **Windows-side** npm (via `cmd.exe`), not the WSL-side npm. WSL-side node-notifier is not used because the EXE would resolve to a UNC path (`\\wsl.localhost\...`) which may be blocked by Windows security policy.
 
 ## Installation
 
