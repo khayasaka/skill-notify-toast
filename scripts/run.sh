@@ -34,12 +34,16 @@ ICON="$ASSETS_DIR/${TOOL}.png"
 # パスをキャッシュして2回目以降の npm 起動コストを排除する
 SNORETOAST_CACHE="$(dirname "$SCRIPT_DIR")/.snoretoast_cache"
 _find_snoretoast() {
-    # キャッシュが有効ならそのまま返す（cat より read の方がサブプロセスを生まない）
+    # Node バージョンをキャッシュの検証キーとして使う（mise など version manager 対応）
+    local current_ver
+    current_ver=$(node --version 2>/dev/null) || return
+
+    # キャッシュが有効ならそのまま返す（1行目: Node バージョン、2行目: パス）
     if [ -f "$SNORETOAST_CACHE" ]; then
-        local cached
-        IFS= read -r cached < "$SNORETOAST_CACHE"
-        if [ -n "$cached" ] && [ -f "$cached" ]; then
-            echo "$cached"
+        local cached_ver cached_path
+        { IFS= read -r cached_ver; IFS= read -r cached_path; } < "$SNORETOAST_CACHE"
+        if [ "$cached_ver" = "$current_ver" ] && [ -n "$cached_path" ] && [ -f "$cached_path" ]; then
+            echo "$cached_path"
             return
         fi
     fi
@@ -62,7 +66,7 @@ _find_snoretoast() {
     fi
 
     if [ -n "$exe" ] && [ -f "$exe" ]; then
-        echo "$exe" > "$SNORETOAST_CACHE"
+        printf '%s\n%s\n' "$current_ver" "$exe" > "$SNORETOAST_CACHE"
         echo "$exe"
     else
         # 見つからなかった場合は空ファイルを書いてキャッシュとする
