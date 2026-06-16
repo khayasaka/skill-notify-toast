@@ -34,20 +34,34 @@ ICON="$ASSETS_DIR/${TOOL}.png"
 # パスをキャッシュして2回目以降の npm 起動コストを排除する
 SNORETOAST_CACHE="$(dirname "$SCRIPT_DIR")/.snoretoast_cache"
 _find_snoretoast() {
-    # キャッシュが有効ならそのまま返す
+    # キャッシュが有効ならそのまま返す（cat より read の方がサブプロセスを生まない）
     if [ -f "$SNORETOAST_CACHE" ]; then
         local cached
-        cached=$(cat "$SNORETOAST_CACHE")
+        IFS= read -r cached < "$SNORETOAST_CACHE"
         if [ -n "$cached" ] && [ -f "$cached" ]; then
             echo "$cached"
             return
         fi
     fi
-    # キャッシュがない場合は npm で探してキャッシュに書く
-    local npm_root
-    npm_root=$(npm root -g 2>/dev/null) || return
-    local exe="${npm_root}/node-notifier/vendor/snoreToast/snoretoast-x64.exe"
-    if [ -f "$exe" ]; then
+
+    local exe=""
+    if [ "$OS_ENV" = "wsl" ]; then
+        # WSL: cmd.exe 経由で Windows 側の npm root を取得し C:\... パスを得る
+        # WSL 側の node を使うと snoretoast.exe が UNC パスになり実行不可のため
+        local win_npm_root
+        win_npm_root=$(cmd.exe /c "npm root -g" 2>/dev/null | tr -d '\r\n')
+        if [ -n "$win_npm_root" ]; then
+            local wsl_npm_root
+            wsl_npm_root=$(wslpath "$win_npm_root" 2>/dev/null)
+            exe="${wsl_npm_root}/node-notifier/vendor/snoreToast/snoretoast-x64.exe"
+        fi
+    else
+        local npm_root
+        npm_root=$(npm root -g 2>/dev/null) || return
+        exe="${npm_root}/node-notifier/vendor/snoreToast/snoretoast-x64.exe"
+    fi
+
+    if [ -n "$exe" ] && [ -f "$exe" ]; then
         echo "$exe" > "$SNORETOAST_CACHE"
         echo "$exe"
     else
@@ -59,10 +73,8 @@ _find_snoretoast() {
 case "$OS_ENV" in
     wsl)
         SNORETOAST=$(_find_snoretoast)
-        # WSL 側 Linux ファイルシステム上の EXE は UNC パス（\\wsl.localhost\...）になり
-        # Windows のセキュリティポリシーで実行がブロックされる場合があるため
-        # Windows ドライブにマウントされた /mnt/ 配下のみ snoretoast を使用する
-        if [ -n "$SNORETOAST" ] && [[ "$SNORETOAST" == /mnt/* ]]; then
+        if [ -n "$SNORETOAST" ]; then
+            # _find_snoretoast が /mnt/ 配下のパスを返すので wslpath -w で C:\... に変換できる
             WIN_SNORETOAST=$(wslpath -w "$SNORETOAST")
             powershell.exe -NoProfile -NonInteractive -Command "Start-Process '$WIN_SNORETOAST' -ArgumentList '-t','$TITLE','-m','$MESSAGE' -NoNewWindow"
         else
