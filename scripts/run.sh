@@ -79,13 +79,46 @@ _find_snoretoast() {
 case "$OS_ENV" in
     wsl)
         SNORETOAST=$(_find_snoretoast)
+        # snoretoast はUNCパス（\\wsl.localhost\...）をアイコンとして読み込めないため、
+        # WindowsのTEMPフォルダにコピーして C:\... パスとして渡す
+        _get_win_icon_path() {
+            local src_icon="$1"
+            if [ ! -f "$src_icon" ]; then
+                echo ""
+                return
+            fi
+            local win_temp
+            win_temp=$(cmd.exe /c "echo %TEMP%" 2>/dev/null | tr -d '\r\n')
+            if [ -z "$win_temp" ]; then
+                echo ""
+                return
+            fi
+            local wsl_temp
+            wsl_temp=$(wslpath "$win_temp" 2>/dev/null)
+            if [ -z "$wsl_temp" ] || [ ! -d "$wsl_temp" ]; then
+                echo ""
+                return
+            fi
+            local icon_basename
+            icon_basename=$(basename "$src_icon")
+            cp "$src_icon" "${wsl_temp}/${icon_basename}"
+            echo "${win_temp}\\${icon_basename}"
+        }
         if [ -n "$SNORETOAST" ]; then
-            WIN_ICON=$(wslpath -w "$ICON")
-            "$SNORETOAST" -t "$TITLE" -m "$MESSAGE" -p "$WIN_ICON" || true
+            WIN_ICON=$(_get_win_icon_path "$ICON")
+            if [ -n "$WIN_ICON" ]; then
+                "$SNORETOAST" -t "$TITLE" -m "$MESSAGE" -p "$WIN_ICON" || true
+            else
+                "$SNORETOAST" -t "$TITLE" -m "$MESSAGE" || true
+            fi
         else
             WIN_PS1=$(wslpath -w "$SCRIPT_DIR/notify.ps1")
-            WIN_ICON=$(wslpath -w "$ICON")
-            powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -File "$WIN_PS1" -Title "$TITLE" -Message "$MESSAGE" -Icon "$WIN_ICON"
+            WIN_ICON=$(_get_win_icon_path "$ICON")
+            if [ -n "$WIN_ICON" ]; then
+                powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -File "$WIN_PS1" -Title "$TITLE" -Message "$MESSAGE" -Icon "$WIN_ICON"
+            else
+                powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -File "$WIN_PS1" -Title "$TITLE" -Message "$MESSAGE"
+            fi
         fi
         ;;
     windows)
