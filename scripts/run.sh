@@ -76,7 +76,8 @@ case "$OS_ENV" in
         if [ -n "$SNORETOAST" ]; then
             # _find_snoretoast が /mnt/ 配下のパスを返すので wslpath -w で C:\... に変換できる
             WIN_SNORETOAST=$(wslpath -w "$SNORETOAST")
-            powershell.exe -NoProfile -NonInteractive -Command "Start-Process '$WIN_SNORETOAST' -ArgumentList '-t','$TITLE','-m','$MESSAGE' -NoNewWindow"
+            WIN_ICON=$(wslpath -w "$ICON")
+            powershell.exe -NoProfile -NonInteractive -Command "Start-Process '$WIN_SNORETOAST' -ArgumentList '-t','$TITLE','-m','$MESSAGE','-p','$WIN_ICON' -NoNewWindow"
         else
             WIN_PS1=$(wslpath -w "$SCRIPT_DIR/notify.ps1")
             WIN_ICON=$(wslpath -w "$ICON")
@@ -86,7 +87,8 @@ case "$OS_ENV" in
     windows)
         SNORETOAST=$(_find_snoretoast)
         if [ -n "$SNORETOAST" ]; then
-            powershell -NoProfile -NonInteractive -Command "Start-Process '$SNORETOAST' -ArgumentList '-t','$TITLE','-m','$MESSAGE' -NoNewWindow"
+            WIN_ICON=$(echo "$ICON" | sed 's|^/\([a-zA-Z]\)/|\1:/|')
+            powershell -NoProfile -NonInteractive -Command "Start-Process '$SNORETOAST' -ArgumentList '-t','$TITLE','-m','$MESSAGE','-p','$WIN_ICON' -NoNewWindow"
         else
             WIN_PS1=$(echo "$SCRIPT_DIR/notify.ps1" | sed 's|^/\([a-zA-Z]\)/|\1:/|')
             WIN_ICON=$(echo "$ICON" | sed 's|^/\([a-zA-Z]\)/|\1:/|')
