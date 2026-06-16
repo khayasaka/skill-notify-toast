@@ -34,12 +34,12 @@ case "$OS_ENV" in
     wsl)
         WIN_PS1=$(wslpath -w "$SCRIPT_DIR/notify.ps1")
         WIN_ICON=$(wslpath -w "$ICON")
-        powershell.exe -ExecutionPolicy Bypass -File "$WIN_PS1" -Title "$TITLE" -Message "$MESSAGE" -Icon "$WIN_ICON"
+        powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -File "$WIN_PS1" -Title "$TITLE" -Message "$MESSAGE" -Icon "$WIN_ICON"
         ;;
     windows)
         WIN_PS1=$(echo "$SCRIPT_DIR/notify.ps1" | sed 's|^/\([a-zA-Z]\)/|\1:/|')
         WIN_ICON=$(echo "$ICON" | sed 's|^/\([a-zA-Z]\)/|\1:/|')
-        powershell -ExecutionPolicy Bypass -File "$WIN_PS1" -Title "$TITLE" -Message "$MESSAGE" -Icon "$WIN_ICON"
+        powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File "$WIN_PS1" -Title "$TITLE" -Message "$MESSAGE" -Icon "$WIN_ICON"
         ;;
     macos|linux)
         bash "$SCRIPT_DIR/notify.sh" "$TITLE" "$MESSAGE" "$ICON"
