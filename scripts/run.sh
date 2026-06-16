@@ -59,7 +59,10 @@ _find_snoretoast() {
 case "$OS_ENV" in
     wsl)
         SNORETOAST=$(_find_snoretoast)
-        if [ -n "$SNORETOAST" ]; then
+        # WSL 側 Linux ファイルシステム上の EXE は UNC パス（\\wsl.localhost\...）になり
+        # Windows のセキュリティポリシーで実行がブロックされる場合があるため
+        # Windows ドライブにマウントされた /mnt/ 配下のみ snoretoast を使用する
+        if [ -n "$SNORETOAST" ] && [[ "$SNORETOAST" == /mnt/* ]]; then
             WIN_SNORETOAST=$(wslpath -w "$SNORETOAST")
             powershell.exe -NoProfile -NonInteractive -Command "Start-Process '$WIN_SNORETOAST' -ArgumentList '-t','$TITLE','-m','$MESSAGE' -NoNewWindow"
         else
